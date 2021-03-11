@@ -8,7 +8,7 @@ import SocketIO from 'socket.io-client'
 const options = {path: '/socket.io/'}; //Options object to pass into SocketIO
 Vue.use(new VueSocketIO({
     debug: true,
-    connection: 'https://tv2.beswell.com:3016',
+    connection: 'https://192.168.0.91:3016',
     vuex: {
         store,
         actionPrefix: 'SOCKET_',

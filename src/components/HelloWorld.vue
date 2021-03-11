@@ -63,7 +63,7 @@ import socket from '../static/socket.io'
 import RoomClient from '../static/RoomClient'
 import mediasoupclient from '../static/mediasoupclient.min'
 
-const socketIo = socket('https://tv2.beswell.com:3016')
+const socketIo = socket('https://192.168.0.91:3016')
 socketIo.request = function request(type, data = {}) {
   return new Promise((resolve, reject) => {
     socketIo.emit(type, data, (data) => {
