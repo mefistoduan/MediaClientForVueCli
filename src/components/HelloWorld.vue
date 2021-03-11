@@ -59,11 +59,12 @@
 </template>
 
 <script>
-import socket from '../static/socket.io'
+import Io from '../static/socket.io'
 import RoomClient from '../static/RoomClient'
+import socketConfig from '../socket/config'
 import mediasoupclient from '../static/mediasoupclient.min'
 
-const socketIo = socket('https://192.168.0.91:3016')
+const socketIo = Io(socketConfig.url)
 socketIo.request = function request(type, data = {}) {
   return new Promise((resolve, reject) => {
     socketIo.emit(type, data, (data) => {
@@ -102,7 +103,7 @@ export default {
   methods: {
     init() {
       let that = this;
-      //   获取摄像头
+      //   获取摄像头和麦克风设备
       navigator.mediaDevices.enumerateDevices().then(devices =>
           devices.forEach(device => {
             if ('audioinput' === device.kind) {
@@ -135,35 +136,40 @@ export default {
         that.rc = new RoomClient(localMedia, remoteVideos, remoteAudios, window.mediasoupClient, socket, room_id, name, roomOpen, that)
       }
     },
-    addListeners() {
-      // 转由vue实现dom元素的切换
-      let that = this;
-      rc.on(RoomClient.EVENTS.startScreen, () => {
-        that.btnAudioShow = false;
-      })
-    },
     exit() {
       this.show = 1;
-      // todo
       this.rc.exit();
       console.log('disconnect：', '已经断开 socket 链接');
     },
     produce(type) {
       let that = this;
-      console.log(this.rc);
       if (type == 'audio') {
-        this.rc.produce(RoomClient.mediaType.audio, audioSelect.value)
+        that.rc.produce(RoomClient.mediaType.audio, audioSelect.value);
+        that.btnAudioShow = !that.btnAudioShow;
       }
       if (type == 'video') {
-        console.log(123);
-        this.rc.produce(RoomClient.mediaType.video, videoSelect.value)
+        that.rc.produce(RoomClient.mediaType.video, videoSelect.value);
+        that.btnVideoButton = !that.btnVideoButton;
       }
       if (type == 'screen') {
-        this.rc.produce(RoomClient.mediaType.screen)
+        that.rc.produce(RoomClient.mediaType.screen);
+        that.btnScreenButton = !that.btnScreenButton;
       }
     },
-    closeProducer() {
-      // todo
+    closeProducer(type) {
+      let that = this;
+      if (type == 'audio') {
+        that.rc.closeProducer(RoomClient.mediaType.audio);
+        that.btnAudioShow = !that.btnAudioShow;
+      }
+      if (type == 'video') {
+        that.rc.closeProducer(RoomClient.mediaType.video);
+        that.btnVideoButton = !that.btnVideoButton;
+      }
+      if (type == 'screen') {
+        that.rc.closeProducer(RoomClient.mediaType.screen);
+        that.btnScreenButton = !that.btnScreenButton;
+      }
     },
   }
 }
@@ -196,8 +202,8 @@ a {
 }
 
 /deep/ .vid {
-  width: 640px;
-  height: 320px;
+  width: 320px;
+  height: 160px;
   overflow: hidden;
   float: left;
 }
